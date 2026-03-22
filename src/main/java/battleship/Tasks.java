@@ -36,82 +36,103 @@ public class Tasks {
 	/**
 	 * This task also tests the fighting element of a round of three shots
 	 */
-	public static void menu() {
+    public static void menu() {
 
-		IFleet myFleet = null;
-		IGame game = null;
-		menuHelp();
+        IFleet myFleet = null;
+        IGame game = null;
+        menuHelp();
 
-		System.out.print("> ");
-		Scanner in = new Scanner(System.in);
-		String command = in.next();
-		while (!command.equals(DESISTIR)) {
+        Scanner in = new Scanner(System.in);
 
-			switch (command) {
-				case GERAFROTA:
-					myFleet = Fleet.createRandom();
-					game = new Game(myFleet);
-					game.printMyBoard(false, true);
-					break;
-				case LEFROTA:
-					myFleet = buildFleet(in);
-					game = new Game(myFleet);
-					game.printMyBoard(false, true);
-					break;
-				case STATUS:
-					if (myFleet != null)
-						myFleet.printStatus();
-					break;
-				case MAPA:
-					if (myFleet != null)
-						game.printMyBoard(false, true);
-					break;
-				case RAJADA:
-					if (game != null) {
-						game.readEnemyFire(in);
-						myFleet.printStatus();
-						game.printMyBoard(true, false);
+        while (true) {
 
-						if (game.getRemainingShips() == 0) {
-							game.over();
-							System.exit(0);
-						}
-					}
-					break;
-				case SIMULA:
-					if (game != null) {
-						while (game.getRemainingShips() > 0){
-							game.randomEnemyFire();
-							myFleet.printStatus();
-							game.printMyBoard(true, false);
-							try {
-								Thread.sleep(3000);
-							} catch (InterruptedException e) {
-								Thread.currentThread().interrupt(); // Best practice: restore interrupt status
-							}
-						}
+            System.out.print("> ");
 
-						if (game.getRemainingShips() == 0) {
-							game.over();
-							System.exit(0);
-						}
-					}
-					break;
-				case TIROS:
-					if (game != null)
-						game.printMyBoard(true, true);
-					break;
+            // ⏱️ começa a contar ANTES de ler input
+            long startTime = System.currentTimeMillis();
+
+            String command = in.next();
+
+            if (command.equals(DESISTIR)) break;
+
+            switch (command) {
+                case GERAFROTA:
+                    myFleet = Fleet.createRandom();
+                    game = new Game(myFleet);
+                    game.printMyBoard(false, true);
+                    break;
+
+                case LEFROTA:
+                    myFleet = buildFleet(in);
+                    game = new Game(myFleet);
+                    game.printMyBoard(false, true);
+                    break;
+
+                case STATUS:
+                    if (myFleet != null)
+                        myFleet.printStatus();
+                    break;
+
+                case MAPA:
+                    if (myFleet != null)
+                        game.printMyBoard(false, true);
+                    break;
+
+                case RAJADA:
+                    if (game != null) {
+                        game.readEnemyFire(in);
+                        myFleet.printStatus();
+                        game.printMyBoard(true, false);
+
+                        if (game.getRemainingShips() == 0) {
+                            game.over();
+                            System.exit(0);
+                        }
+                    }
+                    break;
+
+                case SIMULA:
+                    if (game != null) {
+                        while (game.getRemainingShips() > 0){
+                            game.randomEnemyFire();
+                            myFleet.printStatus();
+                            game.printMyBoard(true, false);
+                            try {
+                                Thread.sleep(3000);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+
+                        if (game.getRemainingShips() == 0) {
+                            game.over();
+                            System.exit(0);
+                        }
+                    }
+                    break;
+
+                case TIROS:
+                    if (game != null)
+                        game.printMyBoard(true, true);
+                    break;
+
                 case AJUDA:
                     menuHelp();
                     break;
-				default:
-					System.out.println("Que comando é esse??? Repete ...");
-			}
-			System.out.print("> ");
-			command = in.next();
-		}
-		System.out.println(GOODBYE_MESSAGE);
-	}
+
+                default:
+                    System.out.println("Que comando é esse??? Repete ...");
+            }
+
+            // ⏱️ termina tempo depois da jogada
+            long endTime = System.currentTimeMillis();
+            double seconds = (endTime - startTime) / 1000.0;
+
+            System.out.printf("Tempo da jogada: %.2f segundos%n", seconds);
+        }
+
+        System.out.println(GOODBYE_MESSAGE);
+    }
 
 	/**
 	 * This function provides help information about the menu commands.
