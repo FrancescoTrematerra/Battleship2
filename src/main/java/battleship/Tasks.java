@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
  * The type Tasks.
  */
 public class Tasks {
+
+    private static java.util.List<Score> scoreboard = new java.util.ArrayList<>();
 	/**
 	 * The constant LOGGER.
 	 */
@@ -32,107 +34,113 @@ public class Tasks {
 	private static final String MAPA = "mapa";
 	private static final String STATUS = "estado";
 	private static final String SIMULA = "simula";
+    private static final String SCOREBOARD = "scoreboard";
 
 	/**
 	 * This task also tests the fighting element of a round of three shots
 	 */
-    public static void menu() {
+	public static void menu() {
 
-        IFleet myFleet = null;
-        IGame game = null;
-        menuHelp();
+        int jogadas = 0;
+        long gameStartTime = System.currentTimeMillis();
 
-        Scanner in = new Scanner(System.in);
+		IFleet myFleet = null;
+		IGame game = null;
+		menuHelp();
 
-        while (true) {
+		System.out.print("> ");
+		Scanner in = new Scanner(System.in);
+		String command = in.next();
+		while (!command.equals(DESISTIR)) {
 
-            System.out.print("> ");
+			switch (command) {
+				case GERAFROTA:
+					myFleet = Fleet.createRandom();
+					game = new Game(myFleet);
+					game.printMyBoard(false, true);
+					break;
+				case LEFROTA:
+					myFleet = buildFleet(in);
+					game = new Game(myFleet);
+					game.printMyBoard(false, true);
+					break;
+				case STATUS:
+					if (myFleet != null)
+						myFleet.printStatus();
+					break;
+				case MAPA:
+					if (myFleet != null)
+						game.printMyBoard(false, true);
+					break;
+				case RAJADA:
+					if (game != null) {
+                        jogadas++;
+						game.readEnemyFire(in);
+						myFleet.printStatus();
+						game.printMyBoard(true, false);
 
-            // ⏱️ começa a contar ANTES de ler input
-            long startTime = System.currentTimeMillis();
-
-            String command = in.next();
-
-            if (command.equals(DESISTIR)) break;
-
-            switch (command) {
-                case GERAFROTA:
-                    myFleet = Fleet.createRandom();
-                    game = new Game(myFleet);
-                    game.printMyBoard(false, true);
-                    break;
-
-                case LEFROTA:
-                    myFleet = buildFleet(in);
-                    game = new Game(myFleet);
-                    game.printMyBoard(false, true);
-                    break;
-
-                case STATUS:
-                    if (myFleet != null)
-                        myFleet.printStatus();
-                    break;
-
-                case MAPA:
-                    if (myFleet != null)
-                        game.printMyBoard(false, true);
-                    break;
-
-                case RAJADA:
-                    if (game != null) {
-                        game.readEnemyFire(in);
-                        myFleet.printStatus();
-                        game.printMyBoard(true, false);
-
-                        if (game.getRemainingShips() == 0) {
+						if (game.getRemainingShips() == 0) {
                             game.over();
-                            System.exit(0);
-                        }
-                    }
-                    break;
 
-                case SIMULA:
-                    if (game != null) {
-                        while (game.getRemainingShips() > 0){
+                            long gameEndTime = System.currentTimeMillis();
+                            double tempoTotal = (gameEndTime - gameStartTime) / 1000.0;
+
+                            scoreboard.add(new Score("Vitoria", jogadas, tempoTotal));
+                        }
+					}
+					break;
+				case SIMULA:
+					if (game != null) {
+						while (game.getRemainingShips() > 0){
+                            jogadas++;
                             game.randomEnemyFire();
-                            myFleet.printStatus();
-                            game.printMyBoard(true, false);
-                            try {
-                                Thread.sleep(3000);
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                            }
-                        }
+							myFleet.printStatus();
+							game.printMyBoard(true, false);
+							try {
+								Thread.sleep(3000);
+							} catch (InterruptedException e) {
+								Thread.currentThread().interrupt(); // Best practice: restore interrupt status
+							}
+						}
 
-                        if (game.getRemainingShips() == 0) {
-                            game.over();
-                            System.exit(0);
+						if (game.getRemainingShips() == 0) {
+							game.over();
+
+                            long gameEndTime = System.currentTimeMillis();
+                            double tempoTotal = (gameEndTime - gameStartTime) / 1000.0;
+
+                            scoreboard.add(new Score("Vitoria", jogadas, tempoTotal));
+						}
+					}
+					break;
+				case TIROS:
+					if (game != null)
+						game.printMyBoard(true, true);
+					break;
+                case SCOREBOARD:
+                    if (scoreboard.isEmpty()) {
+                        System.out.println("Sem jogos registados.");
+                    } else {
+                        for (Score s : scoreboard) {
+                            System.out.println(
+                                    "Resultado: " + s.getResultado() +
+                                            " | Jogadas: " + s.getJogadas() +
+                                            " | Tempo: " + s.getTempo() + "s"
+                            );
                         }
                     }
                     break;
-
-                case TIROS:
-                    if (game != null)
-                        game.printMyBoard(true, true);
-                    break;
-
                 case AJUDA:
                     menuHelp();
                     break;
-
-                default:
-                    System.out.println("Que comando é esse??? Repete ...");
-            }
-
-            // ⏱️ termina tempo depois da jogada
-            long endTime = System.currentTimeMillis();
-            double seconds = (endTime - startTime) / 1000.0;
-
-            System.out.printf("Tempo da jogada: %.2f segundos%n", seconds);
-        }
-
-        System.out.println(GOODBYE_MESSAGE);
-    }
+				default:
+					System.out.println("Que comando é esse??? Repete ...");
+			}
+			System.out.print("> ");
+			command = in.next();
+		}
+		System.out.println(GOODBYE_MESSAGE);
+	}
 
 	/**
 	 * This function provides help information about the menu commands.
@@ -147,6 +155,7 @@ public class Tasks {
 		System.out.println("- " + RAJADA + ": Realiza uma rajada de disparos.");
 		System.out.println("- " + SIMULA + ": Simula um jogo completo.");
 		System.out.println("- " + TIROS + ": Lista os tiros válidos realizados (* = tiro em navio, o = tiro na água)");
+        System.out.println("- " + SCOREBOARD +": Mostra os jogos anteriores.");
 		System.out.println("- " + DESISTIR + ": Encerra o jogo.");
 		System.out.println("===============================================================");
 	}
