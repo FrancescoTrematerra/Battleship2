@@ -17,9 +17,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Qodana
-        uses: JetBrains/qodana-action@v2023.3
+        uses: JetBrains/qodana-action@v2024.1
         with:
-          linter: jetbrains/qodana-jvm
           args: >
             --fail-threshold 0
         env:
