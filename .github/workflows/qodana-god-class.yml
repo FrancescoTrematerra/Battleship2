@@ -1,4 +1,7 @@
 # 122648 - Tiago Lopes
+# Code smell: God Class
+# Classe: Ship.java
+# Justificação: classe com múltiplos problemas, elevada complexidade e múltiplas responsabilidades, caracterizando uma God Class
 
 name: Qodana God Class Analysis
 
