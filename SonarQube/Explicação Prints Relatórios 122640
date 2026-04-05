@@ -1,0 +1,7 @@
+Durante a realização da Parte B, consegui configurar o SonarQube Cloud e integrar o projeto com o GitHub, incluindo a criação do workflow no GitHub Actions e a geração do relatório de qualidade para a branch principal (main), onde a análise foi concluída com sucesso.
+
+No entanto, não consegui concluir a análise de uma branch secundária (feature/tempo-jogada). Apesar de ter feito commits, push e várias tentativas para forçar a execução do workflow nessa branch, a análise não foi desencadeada no GitHub Actions, o que impediu que a branch aparecesse no SonarQube Cloud.
+
+Foram também verificadas possíveis causas como configuração do workflow, secrets (SONAR_TOKEN) e padrões de branches no SonarQube, mas sem sucesso na resolução do problema.
+
+Assim, embora a integração base esteja funcional e o projeto seja analisado corretamente na branch principal, não foi possível completar o passo relativo à análise de outras branches.
