@@ -1,0 +1,11 @@
+Durante a realização da Parte B, foi configurado o SonarCloud e integrado com o repositório do GitHub, permitindo a análise automática do projeto.
+
+A análise foi executada sobre a branch principal (main), tendo sido obtido um Quality Gate "Passed", o que indica que o projeto cumpre os critérios mínimos de qualidade definidos pelo Sonar.
+
+No entanto, foram identificados vários problemas no código. Em particular, a métrica de Maintainability apresenta um número elevado de issues (132), o que indica a presença de vários code smells que podem dificultar a manutenção do sistema.
+
+Adicionalmente, a métrica de Reliability apresenta classificação D, sugerindo a existência de potenciais bugs ou comportamentos inesperados no código.
+
+Foram também identificados alguns Security Hotspots, que devem ser analisados para garantir que não existem vulnerabilidades.
+
+Em conclusão, apesar do projeto cumprir os requisitos básicos de qualidade (Quality Gate aprovado), existem várias melhorias a realizar, especialmente ao nível da manutenção e fiabilidade do código.
