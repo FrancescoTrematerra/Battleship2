@@ -1,28 +1,32 @@
-name: SonarCloud Quality Gate Check
+# NUMERO_ALUNO - NOME
+
+name: SonarQube Analysis
 
 on:
-  workflow_dispatch:
-    branches: [ "main" ]
+  push:
+    branches:
+      - main
+      - feature/**
   pull_request:
-    branches: [ "main" ]
 
 jobs:
-  sonarcloud-quality-gate:
-    name: SonarCloud Quality Gate Check
+  sonar:
     runs-on: ubuntu-latest
 
     steps:
-      
-name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      
-name: Wait for SonarCloud analysis to complete
-      uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
-      with:
-        scanMetadataReportFile: .scannerwork/report-task.txt
-        sonarInstanceUrl: https://sonarcloud.io/
-        sonarProjectKey: your_org_your_project_key
-        sonarOrganization: your_org_key
-        sonarToken: ${{ secrets.SONAR_TOKEN }}
-        githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build project
+        run: mvn clean verify
+
+      - name: Run SonarCloud analysis
+        run: mvn sonar:sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
