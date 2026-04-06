@@ -54,11 +54,18 @@ public class Tasks {
 		while (!command.equals(DESISTIR)) {
 
 			switch (command) {
-				case GERAFROTA:
-					myFleet = Fleet.createRandom();
-					game = new Game(myFleet);
-					game.printMyBoard(false, true);
-					break;
+                case GERAFROTA:
+                    System.out.println("\n=== GERAR FROTA ===");
+
+                    System.out.println("A gerar nova frota aleatória...");
+
+                    myFleet = Fleet.createRandom();
+                    game = new Game(myFleet);
+
+                    System.out.println("Frota criada com sucesso! Use 'mapa' para visualizar novamente.\n");
+
+                    game.printMyBoard(false, true);
+                    break;
 				case LEFROTA:
 					myFleet = buildFleet(in);
 					game = new Game(myFleet);
@@ -66,7 +73,7 @@ public class Tasks {
 					break;
 				case STATUS:
 					if (myFleet != null)
-						myFleet.printStatus();
+						    myFleet.printStatus();
 					break;
 				case MAPA:
 					if (myFleet != null)
