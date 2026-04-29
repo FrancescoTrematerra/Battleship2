@@ -208,9 +208,14 @@ public class Tasks {
 
     public static IPosition readClassicPosition(@NotNull Scanner in) {
 
+        if (in == null) {
+            throw new IllegalArgumentException("Scanner não pode ser null");
+        }
+
         if (!in.hasNext()) {
             throw new IllegalArgumentException("Nenhuma posição válida encontrada!");
         }
+
 
         String part1 = in.next();
         String part2 = null;
@@ -230,7 +235,7 @@ public class Tasks {
         } else if (part2 != null && part1.matches("[A-Z]") && part2.matches("\\d+")) {
             char column = part1.charAt(0);
             int row = Integer.parseInt(part2);
-            return new Position(column, row);
+                return new Position(column, row);
 
         } else {
             throw new IllegalArgumentException("Formato inválido. Use 'A3', 'A 3' ou similar.");
