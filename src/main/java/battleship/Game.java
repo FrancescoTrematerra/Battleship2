@@ -355,33 +355,47 @@ public class Game implements IGame
 	 * @return a ShotResult object containing the result of the shot, including whether the shot was
 	 *         valid, repeated, a hit, and whether a ship was sunk.
 	 */
-	public ShotResult fireSingleShot(IPosition pos, boolean isRepeated) {
+    public ShotResult fireSingleShot(IPosition pos, boolean isRepeated) {
 
-		assert pos != null;
+        assert pos != null;
 
-		if (!pos.isInside()) {
-			countInvalidShots++;
-			return new ShotResult(false, false, null, false);
-		}
+        if (!pos.isInside()) {
+            return handleInvalidShot();
+        }
 
-		if (isRepeated || repeatedShot(pos)) {
-			countRepeatedShots++;
-			return new ShotResult(true, true, null, false);
-		}
+        if (isRepeated || repeatedShot(pos)) {
+            return handleRepeatedShot();
+        }
 
-		IShip ship = myFleet.shipAt(pos);
-		if (ship == null)
-			return new ShotResult(true, false, null, false);
-		else
-		{
-			ship.shoot(pos);
-			countHits++;
-			if (!ship.stillFloating()) {
-				countSinks++;
-			}
-			return new ShotResult(true, false, ship, !ship.stillFloating());
-		}
-	}
+        IShip ship = myFleet.shipAt(pos);
+        if (ship == null) {
+            return new ShotResult(true, false, null, false);
+        }
+
+        return handleHit(ship, pos);
+    }
+
+    private ShotResult handleInvalidShot() {
+        countInvalidShots++;
+        return new ShotResult(false, false, null, false);
+    }
+
+    private ShotResult handleRepeatedShot() {
+        countRepeatedShots++;
+        return new ShotResult(true, true, null, false);
+    }
+
+    private ShotResult handleHit(IShip ship, IPosition pos) {
+        ship.shoot(pos);
+        countHits++;
+
+        boolean sunk = !ship.stillFloating();
+        if (sunk) {
+            countSinks++;
+        }
+
+        return new ShotResult(true, false, ship, sunk);
+    }
 
 	@Override
 	public int getRepeatedShots()
