@@ -18,32 +18,38 @@ public class Fleet implements IFleet
 	 *
 	 * @return a fully constructed and valid fleet as an instance of IFleet
 	 */
-	public static IFleet createRandom() {
+    public static IFleet createRandom() {
 
-		Fleet randomFleet = new Fleet();
+        Fleet randomFleet = new Fleet();
 
-		// Define the types of ships to be added
-		String[] shipTypes =
-					{"galeao",                           // 1 galleon
-				 	"fragata",                           // 1 frigate
- 				 	"nau", "nau",                        // 2 carracks
-					"caravela", "caravela", "caravela",  // 3 caravels
-					"barca", "barca", "barca", "barca"}; // 4 barges
+        String[] shipTypes =
+                {"galeao",
+                        "fragata",
+                        "nau", "nau",
+                        "caravela", "caravela", "caravela",
+                        "barca", "barca", "barca", "barca"};
 
-		int fleetSize = 0;
+        int fleetSize = 0;
 
-		while (fleetSize < shipTypes.length) {
+        while (fleetSize < shipTypes.length) {
 
-			// Build the ship
-			Ship ship = Ship.buildShip(shipTypes[fleetSize], Compass.randomBearing(), Position.randomPosition());
+            Ship ship = createRandomShip(shipTypes[fleetSize]);
 
-			// Attempt to add the ship to the fleet
-			if (ship != null && randomFleet.addShip(ship)) {
-				fleetSize++; // Increment count if ship is successfully added
-			}
-		}
-		return randomFleet;
-	}
+            if (tryAddShip(randomFleet, ship)) {
+                fleetSize++;
+            }
+        }
+
+        return randomFleet;
+    }
+
+    private static Ship createRandomShip(String type) {
+        return Ship.buildShip(type, Compass.randomBearing(), Position.randomPosition());
+    }
+
+    private static boolean tryAddShip(Fleet fleet, Ship ship) {
+        return ship != null && fleet.addShip(ship);
+    }
 
 
     // -----------------------------------------------------
@@ -210,12 +216,7 @@ public class Fleet implements IFleet
     {
 		assert s != null;
 
-		for (int i = 0; i < ships.size(); i++)
-		{
-			if (ships.get(i).tooCloseTo(s))
-				return true;
-		}
-		return false;
+        return ships.stream().anyMatch(ship -> ship.tooCloseTo(s));
     }
 
 	/**
@@ -237,13 +238,7 @@ public class Fleet implements IFleet
 	public void printStatus()
     {
 		System.out.println("Estado da Frota: " + this.getFloatingShips().size() + " a flutuar, " + this.getSunkShips().size() + " afundados!");
-//		printAllShips();
-//		printFloatingShips();
-//		printShipsByCategory("Galeao");
-//		printShipsByCategory("Fragata");
-//		printShipsByCategory("Nau");
-//		printShipsByCategory("Caravela");
-//		printShipsByCategory("Barca");
+
     }
 
 	/**
