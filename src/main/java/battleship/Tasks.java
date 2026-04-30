@@ -222,10 +222,14 @@ public class Tasks {
 
         String shipKind = in.next();
         Position pos = readPosition(in);
-        char c = in.next().charAt(0);
-        Compass bearing = Compass.charToCompass(c);
+        Compass bearing = readBearing(in);
 
         return Ship.buildShip(shipKind, bearing, pos);
+    }
+
+    private static Compass readBearing(Scanner in) {
+        char c = in.next().charAt(0);
+        return Compass.charToCompass(c);
     }
 
     public static Position readPosition(Scanner in) {
