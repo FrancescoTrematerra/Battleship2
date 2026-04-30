@@ -1,6 +1,3 @@
-/**
- * 
- */
 package battleship;
 
 import java.util.ArrayList;
@@ -9,15 +6,8 @@ import java.util.List;
 /**
  * The type Fleet.
  */
-public class Fleet implements IFleet
-{
-	/**
-	 * Creates a randomly generated fleet containing ships of various predefined types.
-	 * Each ship is assigned a random bearing and position. If a ship cannot be added
-	 * due to constraints (e.g., collision or boundary issues), it will be retried.
-	 *
-	 * @return a fully constructed and valid fleet as an instance of IFleet
-	 */
+public class Fleet implements IFleet {
+
     public static IFleet createRandom() {
 
         Fleet randomFleet = new Fleet();
@@ -51,159 +41,142 @@ public class Fleet implements IFleet
         return ship != null && fleet.addShip(ship);
     }
 
+        while (fleetSize < shipTypes.length) {
+
+            Ship ship = Ship.buildShip(
+                    shipTypes[fleetSize],
+                    Compass.randomBearing(),
+                    Position.randomPosition()
+            );
+
+            if (ship != null && randomFleet.addShip(ship)) {
+                fleetSize++;
+            }
+        }
+
+        return randomFleet;
+    }
 
     // -----------------------------------------------------
 
-	/**
-	 * The Ships.
-	 */
-	private final List<IShip> ships;
+    private final List<IShip> ships;
 
-	// -----------------------------------------------------ge
-	/**
-	 * Instantiates a new Fleet.
-	 */
-	public Fleet()
-    {
-	ships = new ArrayList<>();
+    public Fleet() {
+        ships = new ArrayList<>();
     }
 
-	/**
-	 * Gets ships.
-	 *
-	 * @return the ships
-	 */
-	@Override
-    public List<IShip> getShips()
-    {
-	return ships;
+    @Override
+    public List<IShip> getShips() {
+        return ships;
     }
-	
-	/**
-	 * Add ship boolean.
-	 *
-	 * @param s the s
-	 * @return the boolean
-	 */
-	/*
-     * (non-Javadoc)
-     * 
-     * @see battleship.IFleet#addShip(battleship.IShip)
+
+    /**
+     * REFACTORED METHOD
      */
     @Override
-    public boolean addShip(IShip s)
-    {
-		assert s != null;
+    public boolean addShip(IShip s) {
 
-		boolean result = false;
-		if ((ships.size() <= FLEET_SIZE) && (isInsideBoard(s)) && (!colisionRisk(s)))
-		{
-			ships.add(s);
-			result = true;
-		}
-		return result;
+        assert s != null;
+
+        if (canAddShip(s)) {
+            ships.add(s);
+            return true;
+        }
+
+        return false;
     }
 
-	/**
-	 * Gets ships like.
-	 *
-	 * @param category the category
-	 * @return the ships like
-	 */
-	/*
-     * (non-Javadoc)
-     * 
-     * @see battleship.IFleet#getShipsLike(java.lang.String)
+    /**
+     * Extract Method → melhora legibilidade e remove complexidade
      */
-    @Override
-    public List<IShip> getShipsLike(String category)
-    {
-		assert category != null;
-
-		List<IShip> shipsLike = new ArrayList<>();
-		for (IShip s : ships)
-			if (s.getCategory().equals(category))
-				shipsLike.add(s);
-
-		return shipsLike;
+    private boolean canAddShip(IShip s) {
+        return hasCapacity()
+                && isInsideBoard(s)
+                && !hasCollision(s);
     }
 
-	/**
-	 * Gets floating ships.
-	 *
-	 * @return the floating ships
-	 */
-	/*
-     * (non-Javadoc)
-     * 
-     * @see battleship.IFleet#getFloatingShips()
+    /**
+     * Extract Method → responsabilidade isolada
      */
-    @Override
-    public List<IShip> getFloatingShips()
-    {
-		List<IShip> floatingShips = new ArrayList<IShip>();
-		for (IShip s : ships)
-			if (s.stillFloating())
-				floatingShips.add(s);
-
-		return floatingShips;
+    private boolean hasCapacity() {
+        return ships.size() <= FLEET_SIZE;
     }
 
-	/**
-	 * Gets sunk ships.
-	 *
-	 * @return the sunk ships
-	 */
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see battleship.IFleet#getSunkShips()
-	 */
-	@Override
-	public List<IShip> getSunkShips()
-	{
-		List<IShip> sunkShips = new ArrayList<IShip>();
-		for (IShip s : ships)
-			if (!s.stillFloating())
-				sunkShips.add(s);
-
-		return sunkShips;
-	}
-
-	/**
-	 * Ship at ship.
-	 *
-	 * @param pos the pos
-	 * @return the ship
-	 */
-	/*
-     * (non-Javadoc)
-     * 
-     * @see battleship.IFleet#shipAt(battleship.IPosition)
+    /**
+     * Rename + Extract → nome mais claro
      */
-    @Override
-    public IShip shipAt(IPosition pos)
-    {
-		assert pos != null;
+    private boolean hasCollision(IShip s) {
 
-		for (IShip ship : ships)
-			if (ship.occupies(pos))
-				return ship;
-		return null;
+        for (IShip ship : ships) {
+            if (ship.tooCloseTo(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-	/**
-	 * Is inside board boolean.
-	 *
-	 * @param s the s
-	 * @return the boolean
-	 */
-	private boolean isInsideBoard(IShip s)
-    {
-		assert s != null;
+    private boolean colisionRisk(IShip s) {
+        return hasCollision(s);
+    }
 
-		return (s.getLeftMostPos() >= 0 && s.getRightMostPos() <= Game.BOARD_SIZE - 1 && s.getTopMostPos() >= 0
-			&& s.getBottomMostPos() <= Game.BOARD_SIZE - 1);
+    @Override
+    public List<IShip> getShipsLike(String category) {
+
+        assert category != null;
+
+        List<IShip> shipsLike = new ArrayList<>();
+
+        for (IShip s : ships)
+            if (s.getCategory().equals(category))
+                shipsLike.add(s);
+
+        return shipsLike;
+    }
+
+    @Override
+    public List<IShip> getFloatingShips() {
+
+        List<IShip> floatingShips = new ArrayList<>();
+
+        for (IShip s : ships)
+            if (s.stillFloating())
+                floatingShips.add(s);
+
+        return floatingShips;
+    }
+
+    @Override
+    public List<IShip> getSunkShips() {
+
+        List<IShip> sunkShips = new ArrayList<>();
+
+        for (IShip s : ships)
+            if (!s.stillFloating())
+                sunkShips.add(s);
+
+        return sunkShips;
+    }
+
+    @Override
+    public IShip shipAt(IPosition pos) {
+
+        assert pos != null;
+
+        for (IShip ship : ships)
+            if (ship.occupies(pos))
+                return ship;
+
+        return null;
+    }
+
+    private boolean isInsideBoard(IShip s) {
+
+        assert s != null;
+
+        return s.getLeftMostPos() >= 0 &&
+                s.getRightMostPos() <= Game.BOARD_SIZE - 1 &&
+                s.getTopMostPos() >= 0 &&
+                s.getBottomMostPos() <= Game.BOARD_SIZE - 1;
     }
 
 	/**
@@ -241,32 +214,18 @@ public class Fleet implements IFleet
 
     }
 
-	/**
-	 * This operation prints all the ships of a fleet belonging to a particular
-	 * category
-	 *
-	 * @param category The category of ships of interest
-	 */
-	public void printShipsByCategory(String category)
-    {
-		assert category != null;
+    public void printShipsByCategory(String category) {
 
-		printShips(getShipsLike(category));
+        assert category != null;
+
+        printShips(getShipsLike(category));
     }
 
-	/**
-	 * This operation prints all the ships of a fleet but not yet shot
-	 */
-	public void printFloatingShips()
-    {
-	printShips(getFloatingShips());
+    public void printFloatingShips() {
+        printShips(getFloatingShips());
     }
 
-	/**
-	 * This operation prints all the ships of a fleet
-	 */
-	void printAllShips()
-    {
-		printShips(ships);
+    void printAllShips() {
+        printShips(ships);
     }
 }

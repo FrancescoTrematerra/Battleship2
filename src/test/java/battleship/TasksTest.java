@@ -29,7 +29,7 @@ class TasksTest {
 
     @Test
     void testReadPositionNull() {
-        assertThrows(AssertionError.class, () -> Tasks.readPosition(null));
+        assertThrows(IllegalArgumentException.class, () -> Tasks.readPosition(null));
     }
 
     // ==================== readShip ====================
@@ -68,7 +68,7 @@ class TasksTest {
 
     @Test
     void testReadShipNull() {
-        assertThrows(AssertionError.class, () -> Tasks.readShip(null));
+        assertThrows(IllegalArgumentException.class, () -> Tasks.readShip(null));
     }
 
     // ==================== readClassicPosition ====================
