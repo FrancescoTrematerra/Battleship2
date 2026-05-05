@@ -12,15 +12,34 @@ public class Fleet implements IFleet {
 
         Fleet randomFleet = new Fleet();
 
-        String[] shipTypes = {
-                "galeao",
-                "fragata",
-                "nau", "nau",
-                "caravela", "caravela", "caravela",
-                "barca", "barca", "barca", "barca"
-        };
+        String[] shipTypes =
+                {"galeao",
+                        "fragata",
+                        "nau", "nau",
+                        "caravela", "caravela", "caravela",
+                        "barca", "barca", "barca", "barca"};
 
         int fleetSize = 0;
+
+        while (fleetSize < shipTypes.length) {
+
+            Ship ship = createRandomShip(shipTypes[fleetSize]);
+
+            if (tryAddShip(randomFleet, ship)) {
+                fleetSize++;
+            }
+        }
+
+        return randomFleet;
+    }
+
+    private static Ship createRandomShip(String type) {
+        return Ship.buildShip(type, Compass.randomBearing(), Position.randomPosition());
+    }
+
+    private static boolean tryAddShip(Fleet fleet, Ship ship) {
+        return ship != null && fleet.addShip(ship);
+    }
 
         while (fleetSize < shipTypes.length) {
 
@@ -160,18 +179,39 @@ public class Fleet implements IFleet {
                 s.getBottomMostPos() <= Game.BOARD_SIZE - 1;
     }
 
-    public void printShips(List<IShip> ships) {
+	/**
+	 * Colision risk boolean.
+	 *
+	 * @param s the s
+	 * @return the boolean
+	 */
+	private boolean colisionRisk(IShip s)
+    {
+		assert s != null;
 
-        assert ships != null;
-
-        for (IShip ship : ships)
-            System.out.println(ship);
+        return ships.stream().anyMatch(ship -> ship.tooCloseTo(s));
     }
 
-    public void printStatus() {
-        System.out.println("Estado da Frota: "
-                + this.getFloatingShips().size() + " a flutuar, "
-                + this.getSunkShips().size() + " afundados!");
+	/**
+	 * This operation prints all the given ships
+	 *
+	 * @param ships The list of ships
+	 */
+	public void printShips(List<IShip> ships)
+	{
+		assert ships != null;
+
+		for (IShip ship : ships)
+			System.out.println(ship);
+	}
+
+	/**
+	 * This operation shows the state of a fleet
+	 */
+	public void printStatus()
+    {
+		System.out.println("Estado da Frota: " + this.getFloatingShips().size() + " a flutuar, " + this.getSunkShips().size() + " afundados!");
+
     }
 
     public void printShipsByCategory(String category) {
